@@ -21,7 +21,7 @@ from omegaconf import OmegaConf
 
 from agent.naive_rl_dr import NaiveRLDomainRandomization
 from agent.sac_dr import SACDomainRandomization
-from simulators import RaceCarDstb5DEnv, PrintLogger, save_obj
+from simulators import RaceCarDstb5DEnv, DubinsPursuitEvasionEnv, PrintLogger, save_obj
 from utils.dstb import random_dstb
 from utils.visualization import plot_traj, get_values, get_trajectories_zs
 
@@ -133,6 +133,8 @@ def main(config_file):
 
   if cfg.agent.dyn == "BicycleDstb5D":
     env_class = RaceCarDstb5DEnv
+  elif cfg.agent.dyn == "Dubins6D":
+    env_class = DubinsPursuitEvasionEnv
   else:
     raise ValueError("Dynamics type not supported!")
 
@@ -170,16 +172,22 @@ def main(config_file):
 
   # Training starts.
   print("\n== Learning starts ==")
-  vel_list = [0.5, 1., 1.5]
-  yaw_list = [-np.pi / 3, -np.pi / 4, -np.pi / 8, 0., np.pi / 6, np.pi / 2]
-  visualize_callback = partial(
-      visualize, vel_list=vel_list, yaw_list=yaw_list,
-      end_criterion=cfg.solver.rollout_end_criterion,
-      T_rollout=cfg.solver.eval_timeout, nx=cfg.solver.cmap_res_x,
-      ny=cfg.solver.cmap_res_y, subfigsz_x=cfg.solver.fig_size_x,
-      subfigsz_y=cfg.solver.fig_size_y, vmin=-cfg.environment.g_x_fail,
-      vmax=cfg.environment.g_x_fail, markersz=40
-  )
+  
+  # Disable visualization for Dubins environments
+  if cfg.agent.dyn == "Dubins6D":
+    print("Dubins6D environment detected - disabling visualization callback")
+    visualize_callback = None
+  else:
+    vel_list = [0.5, 1., 1.5]
+    yaw_list = [-np.pi / 3, -np.pi / 4, -np.pi / 8, 0., np.pi / 6, np.pi / 2]
+    visualize_callback = partial(
+        visualize, vel_list=vel_list, yaw_list=yaw_list,
+        end_criterion=cfg.solver.rollout_end_criterion,
+        T_rollout=cfg.solver.eval_timeout, nx=cfg.solver.cmap_res_x,
+        ny=cfg.solver.cmap_res_y, subfigsz_x=cfg.solver.fig_size_x,
+        subfigsz_y=cfg.solver.fig_size_y, vmin=-cfg.environment.g_x_fail,
+        vmax=cfg.environment.g_x_fail, markersz=40
+    )
   train_record, train_progress, violation_record, episode_record, pq_top_k = (
       solver.learn(env, visualize_callback=visualize_callback)
   )

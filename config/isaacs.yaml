@@ -152,7 +152,7 @@ arch:
         [-0.4, 0.4],
         [-0.4, 0.4],
         [-0.4, 0.4]]
-    pretrained_path: experiments/pre_dstb/v2/model/dstb/dstb-2550000.pth
+    pretrained_path: experiments/pre_dstb/v2/model/dstb/dstb-4000000.pth
   critic_0:
     mlp_dim:
       - 128
@@ -163,7 +163,7 @@ arch:
     latent_dim: 0
     obs_dim: 5
     action_dim: 7
-    pretrained_path: experiments/pre_dstb/v2/model/central/central-2550000.pth
+    pretrained_path: experiments/pre_dstb/v2/model/central/central-4000000.pth
 
 train:
   num_actors: 2

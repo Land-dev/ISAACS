@@ -34,7 +34,7 @@ def main(config_file):
 
     if cfg.solver.use_wandb:
         wandb.init(
-            entity='safe-princeton', project=cfg.solver.project_name,
+            entity='saslab', project=cfg.solver.project_name,
             name=cfg.solver.name
         )
         tmp_cfg = {
